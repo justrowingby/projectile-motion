@@ -13,6 +13,7 @@ public class ProjectileMotion{
         System.out.println("the absolute value of the gravity on your ");
         System.out.println("planet in m/s^2.");
 
+        //Take the three inputs
         String input1 = in.next();
         String input2 = in.next();
         String input3 = in.next();
@@ -25,6 +26,7 @@ public class ProjectileMotion{
         double dt = time.doubleValue();
         double g = -1 * gravity.doubleValue();
 
+        //Strip trailing zeros if no decimal point is present in string
         if(input1.indexOf('.') == -1){ //if a decimal is not present in the string
             horizDis = horizDis.stripTrailingZeros();
         }
@@ -35,18 +37,13 @@ public class ProjectileMotion{
             gravity = gravity.stripTrailingZeros();
         }
 
-        int[] precision = {horizDis.precision(), time.precision(), gravity.precision()};
-        int truePrecision = Integer.MAX_VALUE;
-        for(int p : precision){
-            if(p < truePrecision){
-                truePrecision = p;
-            }
-        }
+        int precision = findLowestInt(new int[]{horizDis.precision(), time.precision(), gravity.precision()});
 
         double[] results = calculations(dx, dt, g);
-        System.out.println("Initial velocity: " + new BigDecimal(results[0], new MathContext(truePrecision, RoundingMode.HALF_UP)));
-        System.out.println("Angle of launch in radians: " + new BigDecimal(results[1], new MathContext(truePrecision, RoundingMode.HALF_UP)));
-        System.out.println("Maximum height: " + new BigDecimal(results[2], new MathContext(truePrecision, RoundingMode.HALF_UP)));
+
+        System.out.println("Initial velocity: " + doubleToPrecisionString(results[0], precision));
+        System.out.println("Angle of launch in radians: " + doubleToPrecisionString(results[1], precision));
+        System.out.println("Maximum height: " + doubleToPrecisionString(results[2], precision));
     }
     private static double[] calculations(double dx, double dt, double g){
         double vx = dx / dt;
@@ -57,11 +54,16 @@ public class ProjectileMotion{
         double[] results = new double[] {vi, theta, dy};
         return results;
     }
-    private static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
+    private static int findLowestInt(int[] numbers){
+        int fin = Integer.MAX_VALUE;
+        for(int p : numbers){
+            if(p < fin){
+                fin = p;
+            }
+        }
+        return fin;
+    }
+    private static String doubleToPrecisionString(double input, int precision){
+        return new BigDecimal(input, new MathContext(precision, RoundingMode.HALF_UP)).toString();
     }
 }
